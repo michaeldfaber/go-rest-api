@@ -1,4 +1,4 @@
-package main
+package gorestapi
 
 import (
     "fmt"
@@ -10,35 +10,7 @@ import (
 	"strconv"
 )
 
-type Person struct {
-	Id int `json:"Id"`
-	Gender string `json:"Gender"`
-	FirstName string `json:"FirstName"`
-	LastName string `json:"LastName"`
-	Age int `json:"Age"`
-}
 var Persons []Person
-
-// Models for Random Person API
-type Name struct {
-	First string `json:"first"`
-	Last string `json"last"`
-}
-type Dob struct {
-	Age int `json:"age"`
-}
-type RandomPerson struct {
-	Gender string `json:"gender"`
-	Name Name `json:"name"`
-	Dob Dob `json:"dob"`
-}
-type RandomPersonResponse struct {
-	Results []RandomPerson `json:"results"`
-}
-
-func defaultPage(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprintf(w, "Hello World!")
-}
 
 func returnAllPersons(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -124,7 +96,6 @@ func getRandomPerson() RandomPerson {
 
 func handleRequests() {
 	myRouter := mux.NewRouter().StrictSlash(true)
-	myRouter.HandleFunc("/", defaultPage)
 	myRouter.HandleFunc("/all", returnAllPersons)
 	myRouter.HandleFunc("/create", createPerson).Methods("POST")
 	myRouter.HandleFunc("/create/random", createRandomPerson).Methods("POST")
@@ -135,7 +106,6 @@ func handleRequests() {
 }
 
 func main() {
-	// Initial data, no time for a real db for now
 	Persons = []Person {
 		Person { Id: 1, Gender: "male", FirstName: "Michael", LastName: "Faber", Age: 24 },
 		Person { Id: 2, Gender: "male", FirstName: "Bob", LastName: "Johnson", Age: 30 },

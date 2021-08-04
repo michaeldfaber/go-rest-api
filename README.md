@@ -4,7 +4,9 @@ Investigating the Go programming language.
 
 ## Running locally without Docker
 
-Run `go run main.go` in the `src` folder.
+Run `go build` in the `src` folder.
+
+Run `./go-rest-api.exe` in the `src` folder.
 
 ## Running locally with Docker
 
