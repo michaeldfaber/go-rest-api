@@ -7,15 +7,34 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"io/ioutil"
+	"strconv"
 )
 
 type Person struct {
-	Id string `json:"Id"`
+	Id int `json:"Id"`
+	Gender string `json:"Gender"`
 	FirstName string `json:"FirstName"`
 	LastName string `json:"LastName"`
 	Age int `json:"Age"`
 }
 var Persons []Person
+
+// Models for Random Person API
+type Name struct {
+	First string `json:"first"`
+	Last string `json"last"`
+}
+type Dob struct {
+	Age int `json:"age"`
+}
+type RandomPerson struct {
+	Gender string `json:"gender"`
+	Name Name `json:"name"`
+	Dob Dob `json:"dob"`
+}
+type RandomPersonResponse struct {
+	Results []RandomPerson `json:"results"`
+}
 
 func defaultPage(w http.ResponseWriter, r *http.Request) {
     fmt.Fprintf(w, "Hello World!")
@@ -38,7 +57,8 @@ func createPerson(w http.ResponseWriter, r *http.Request) {
 func getPerson(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
-	id := vars["id"]
+	idString := vars["id"]
+	id, _ := strconv.Atoi(idString)
 	var notFound = true
 	for _, person := range Persons {
 		if person.Id == id {
@@ -72,7 +92,8 @@ func updatePerson(w http.ResponseWriter, r *http.Request) {
 func deletePerson(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
     vars := mux.Vars(r)
-    id := vars["id"]
+    idString := vars["id"]
+	id, _ := strconv.Atoi(idString)
     for i, person := range Persons {
         if person.Id == id {
             Persons = append(Persons[:i], Persons[i+1:]...)
@@ -80,12 +101,33 @@ func deletePerson(w http.ResponseWriter, r *http.Request) {
     }
 }
 
+func createRandomPerson(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	randomPerson := getRandomPerson()
+	var person Person
+	person.Id = Persons[len(Persons)-1].Id + 1
+	person.Gender = randomPerson.Gender
+	person.FirstName = randomPerson.Name.First
+	person.LastName = randomPerson.Name.Last
+	person.Age = randomPerson.Dob.Age
+	Persons = append(Persons, person)
+    json.NewEncoder(w).Encode(person)
+}
+
+func getRandomPerson() RandomPerson {
+	randomPersonHttpResponse, _ := http.Get("https://randomuser.me/api")
+	randomPersonHttpResponseBody, _ := ioutil.ReadAll(randomPersonHttpResponse.Body)
+    var randomPersonResponse RandomPersonResponse
+	json.Unmarshal(randomPersonHttpResponseBody, &randomPersonResponse)
+	return randomPersonResponse.Results[0]
+}
+
 func handleRequests() {
 	myRouter := mux.NewRouter().StrictSlash(true)
-	
 	myRouter.HandleFunc("/", defaultPage)
 	myRouter.HandleFunc("/all", returnAllPersons)
 	myRouter.HandleFunc("/create", createPerson).Methods("POST")
+	myRouter.HandleFunc("/create/random", createRandomPerson).Methods("POST")
 	myRouter.HandleFunc("/person/{id}", getPerson)
 	myRouter.HandleFunc("/update", updatePerson).Methods("PUT")
 	myRouter.HandleFunc("/delete/{id}", deletePerson).Methods("DELETE")
@@ -95,9 +137,9 @@ func handleRequests() {
 func main() {
 	// Initial data, no time for a real db for now
 	Persons = []Person {
-		Person { Id: "1", FirstName: "Michael", LastName: "Faber", Age: 24 },
-		Person { Id: "2", FirstName: "Bob", LastName: "Johnson", Age: 30 },
-		Person { Id: "3", FirstName: "John", LastName: "Smith", Age: 45 },
+		Person { Id: 1, Gender: "male", FirstName: "Michael", LastName: "Faber", Age: 24 },
+		Person { Id: 2, Gender: "male", FirstName: "Bob", LastName: "Johnson", Age: 30 },
+		Person { Id: 3, Gender: "female", FirstName: "Jane", LastName: "Smith", Age: 45 },
 	}
     handleRequests()
 }
