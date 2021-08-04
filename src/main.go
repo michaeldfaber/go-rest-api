@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"encoding/json"
 	"github.com/gorilla/mux"
-	// "strconv"
 	"io/ioutil"
 )
 
@@ -37,34 +36,36 @@ func createPerson(w http.ResponseWriter, r *http.Request) {
 }
 
 func getPerson(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
 	id := vars["id"]
-
-	// Tried to have Id as an int but had issues converting it from string in URL
-
-	// id, err := strconv.Atoi(vars["id"])
-	// if err != nil {
-	// 	for _, person := range Persons {
-	// 		if person.Id == id {
-	// 			json.NewEncoder(w).Encode(person)
-	// 		}
-	// 	}
-	// } else {
-	// 	fmt.Fprintf(w, "No person with that Id was found.")
-	// }
-
-	// .Where() / .Find() / .filter() instead?
 	var notFound = true
 	for _, person := range Persons {
 		if person.Id == id {
 			notFound = false
-			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(person)
 		}
 	}
-
 	if notFound {
 		fmt.Fprintf(w, "No person with that Id was found.")
+	}
+}
+
+func updatePerson(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	requestBody, _ := ioutil.ReadAll(r.Body)
+	var updatedPerson Person 
+	json.Unmarshal(requestBody, &updatedPerson)
+	personIndex := -1
+    for i, person := range Persons {
+        if person.Id == updatedPerson.Id {
+			personIndex = i
+        }
+	}
+	if personIndex != -1 {
+		Persons[personIndex] = updatedPerson
+	} else {
+		fmt.Fprintf(w, "No person with that Id was found. No changes were made.")
 	}
 }
 
@@ -86,6 +87,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/all", returnAllPersons)
 	myRouter.HandleFunc("/create", createPerson).Methods("POST")
 	myRouter.HandleFunc("/person/{id}", getPerson)
+	myRouter.HandleFunc("/update", updatePerson).Methods("PUT")
 	myRouter.HandleFunc("/delete/{id}", deletePerson).Methods("DELETE")
     log.Fatal(http.ListenAndServe(":10000", myRouter))
 }
