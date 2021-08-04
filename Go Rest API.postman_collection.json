@@ -55,6 +55,26 @@
 			"response": []
 		},
 		{
+			"name": "Create Random Person",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:10000/create/random",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "10000",
+					"path": [
+						"create",
+						"random"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Get Person",
 			"request": {
 				"method": "GET",
