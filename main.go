@@ -8,11 +8,11 @@ import (
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"strconv"
-	
-	"github.com/michaeldfaber/go-rest-api/api/models"
+
+	"go-rest-api/api/models"
 )
 
-var Persons []Person
+var Persons []*models.Person
 
 func returnAllPersons(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -22,7 +22,7 @@ func returnAllPersons(w http.ResponseWriter, r *http.Request) {
 func createPerson(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	requestBody, _ := ioutil.ReadAll(r.Body)
-    var person Person 
+    var person *models.Person
     json.Unmarshal(requestBody, &person)
     Persons = append(Persons, person)
     json.NewEncoder(w).Encode(person)
@@ -48,7 +48,7 @@ func getPerson(w http.ResponseWriter, r *http.Request) {
 func updatePerson(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	requestBody, _ := ioutil.ReadAll(r.Body)
-	var updatedPerson Person 
+	var updatedPerson *models.Person 
 	json.Unmarshal(requestBody, &updatedPerson)
 	personIndex := -1
     for i, person := range Persons {
@@ -78,7 +78,7 @@ func deletePerson(w http.ResponseWriter, r *http.Request) {
 func createRandomPerson(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	randomPerson := getRandomPerson()
-	var person Person
+	var person *models.Person
 	person.Id = Persons[len(Persons)-1].Id + 1
 	person.Gender = randomPerson.Gender
 	person.FirstName = randomPerson.Name.First
@@ -88,10 +88,10 @@ func createRandomPerson(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(person)
 }
 
-func getRandomPerson() RandomPerson {
+func getRandomPerson() models.RandomPerson {
 	randomPersonHttpResponse, _ := http.Get("https://randomuser.me/api")
 	randomPersonHttpResponseBody, _ := ioutil.ReadAll(randomPersonHttpResponse.Body)
-    var randomPersonResponse RandomPersonResponse
+    var randomPersonResponse *models.RandomPersonResponse
 	json.Unmarshal(randomPersonHttpResponseBody, &randomPersonResponse)
 	return randomPersonResponse.Results[0]
 }
@@ -108,10 +108,10 @@ func handleRequests() {
 }
 
 func main() {
-	Persons = []Person {
-		Person { Id: 1, Gender: "male", FirstName: "Michael", LastName: "Faber", Age: 24 },
-		Person { Id: 2, Gender: "male", FirstName: "Bob", LastName: "Johnson", Age: 30 },
-		Person { Id: 3, Gender: "female", FirstName: "Jane", LastName: "Smith", Age: 45 },
+	Persons = []*models.Person {
+		&models.Person { Id: 1, Gender: "male", FirstName: "Michael", LastName: "Faber", Age: 24 },
+		&models.Person { Id: 2, Gender: "male", FirstName: "Bob", LastName: "Johnson", Age: 30 },
+		&models.Person { Id: 3, Gender: "female", FirstName: "Jane", LastName: "Smith", Age: 45 },
 	}
     handleRequests()
 }
