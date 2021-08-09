@@ -2,13 +2,11 @@
 
 Investigating the Go programming language.
 
-## Running locally without Docker
+## Running Locally
 
-Run `go build` in the `src` folder.
+Create a `.env` file in the root of this project. Copy the contents of `.env.token` into it, and fill in the values.
 
-Run `./go-rest-api.exe` in the `src` folder.
-
-## Running locally with Docker
+### With Docker
 
 Run `docker build --tag go-rest-api .` to create the image.
 
