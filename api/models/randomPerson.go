@@ -1,4 +1,4 @@
-package gorestapi
+package models
 
 type Name struct {
 	First string `json:"first"`

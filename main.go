@@ -8,6 +8,8 @@ import (
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"strconv"
+	
+	"github.com/michaeldfaber/go-rest-api/api/models"
 )
 
 var Persons []Person

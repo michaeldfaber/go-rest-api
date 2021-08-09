@@ -1,4 +1,4 @@
-package gorestapi
+package models
 
 type Person struct {
 	Id int `json:"Id"`
