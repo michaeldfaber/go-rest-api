@@ -1,29 +1,53 @@
-
 version: '3'
 services:
-  mysql:
-    image: mysql:latest
-    command: --default-authentication-plugin=mysql_native_password
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - 3306:3306
-  adminer:
-    image: adminer:latest
-    environment:
-      ADMINER_DEFAULT_SERVER: mysql
-    depends_on:
-      - mysql
-    ports:
-      - 8080:8080
-  backend:
-    image: go-rest-api:latest
-    depends_on:
-      - mysql
-    environment:
-      WAIT_HOSTS: mysql:3306
-    ports:
+  app:
+    tty: true
+    container_name: full_app
+    build: .
+    ports: 
       - 10000:10000
+    restart: on-failure
+    volumes:
+      - api:/usr/src/app/
+    depends_on:
+      - fullstack-postgres          
+    networks:
+      - fullstack
+
+
+  fullstack-postgres:
+    image: postgres:latest
+    container_name: full_db_postgres
+    environment:
+      - POSTGRES_USER=${DB_USER}  
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - DATABASE_HOST=${DB_HOST} 
+    ports:
+      - '5432:5432'
+    volumes:
+      - database_postgres:/var/lib/postgresql/data
+    networks:
+      - fullstack
+    
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_container
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    depends_on:
+      - fullstack-postgres
+    ports:
+      - "5050:80"
+    networks:
+      - fullstack
+    restart: unless-stopped
+
+volumes:
+  api:
+  database_postgres:                  
+
+networks:
+  fullstack:
+    driver: bridge

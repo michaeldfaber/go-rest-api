@@ -9,22 +9,19 @@ import (
 )
 
 var Persons = []*models.Person {
-	&models.Person { 
-		Id: 1,
+	&models.Person {
 		Gender: "male",
 		FirstName: "Michael",
 		LastName: "Faber",
 		Age: 24,
 	},
-	&models.Person { 
-		Id: 2,
+	&models.Person {
 		Gender: "male",
 		FirstName: "Bob",
 		LastName: "Johnson",
 		Age: 30,
 	},
-	&models.Person { 
-		Id: 3,
+	&models.Person {
 		Gender: "female",
 		FirstName: "Jane",
 		LastName: "Smith",
@@ -34,19 +31,23 @@ var Persons = []*models.Person {
 
 func Load(db *gorm.DB) {
 
-	err := db.Debug().DropTableIfExists(&models.Person{}).Error
-	if err != nil {
-		log.Fatalf("Cannot drop table: %v", err)
-	}
-	err = db.Debug().AutoMigrate(&models.Person{}).Error
-	if err != nil {
-		log.Fatalf("Cannot migrate table: %v", err)
-	}
+	seeded := db.Debug().HasTable(&models.Person{})
 
-	for i, _ := range Persons {
-		err = db.Debug().Model(&models.Person{}).Create(&Persons[i]).Error
+	if seeded == false {
+		err := db.Debug().DropTableIfExists(&models.Person{}).Error
 		if err != nil {
-			log.Fatalf("Cannot seed Persons table: %v", err)
+			log.Fatalf("Cannot drop table: %v", err)
+		}
+		err = db.Debug().AutoMigrate(&models.Person{}).Error
+		if err != nil {
+			log.Fatalf("Cannot migrate table: %v", err)
+		}
+
+		for i, _ := range Persons {
+			err = db.Debug().Model(&models.Person{}).Create(&Persons[i]).Error
+			if err != nil {
+				log.Fatalf("Cannot seed Persons table: %v", err)
+			}
 		}
 	}
 }

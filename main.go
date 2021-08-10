@@ -1,4 +1,4 @@
-package gorestapi
+package main
 
 import (
 	"go-rest-api/api"

@@ -1,6 +1,6 @@
 # Go Rest API
 
-Investigating the Go programming language.
+Investigating the Go programming language. [Victor Steven's 'Go-JWT-Postgres-Mysql-Restful-API'](https://github.com/victorsteven/Go-JWT-Postgres-Mysql-Restful-API) was a great resource and reference for this project.
 
 ## Running Locally
 
@@ -8,12 +8,6 @@ Create a `.env` file in the root of this project. Copy the contents of `.env.tok
 
 ### With Docker
 
-Run `docker build --tag go-rest-api .` to create the image.
+Run `docker-compose up -d` to create and start all necessary containers and services.
 
-Run `docker images` to verify the image exists.
-
-Run `docker run -p 10000:10000 go-rest-api` to start the container.
-
-Run `docker ps` to verify the container exists.
-
-Run `docker inspect [container Id]` for additional information on the container.
+I recommend running `go build` and fixing all errors before attempting the docker command.

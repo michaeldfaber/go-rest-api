@@ -1,9 +1,15 @@
-FROM golang:1.16.6-alpine3.14
+FROM golang:1.16.6-alpine3.14 as builder
+RUN apk update && apk add --no-cache git
 WORKDIR /app
-COPY src/go.mod ./
-COPY src/go.sum ./
+COPY go.mod go.sum ./
 RUN go mod download
-COPY src/*.go ./
-RUN go build -o /go-rest-api
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o go-rest-api .
+
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+WORKDIR /root
+COPY --from=builder /app/go-rest-api .
+COPY --from=builder /app/.env .
 EXPOSE 10000
-CMD [ "/go-rest-api" ]
+CMD [ "./go-rest-api" ]
